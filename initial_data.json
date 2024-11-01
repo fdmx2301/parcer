@@ -1,0 +1,46 @@
+[
+    {
+        "model": "parcer_app.hub",
+        "pk": 1,
+        "fields": {
+            "name": "Хаб 1",
+            "url": "https://example.com/hub1",
+            "fetch_interval": 10,
+            "last_fetched": null
+        }
+    },
+    {
+        "model": "parcer_app.hub",
+        "pk": 2,
+        "fields": {
+            "name": "Хаб 2",
+            "url": "https://example.com/hub2",
+            "fetch_interval": 15,
+            "last_fetched": null
+        }
+    },
+    {
+        "model": "parcer_app.hubselectors",
+        "pk": 1,
+        "fields": {
+            "hub": 1,
+            "article_selector": ".article",
+            "title_selector": ".title",
+            "author_selector": ".author",
+            "publication_date_selector": ".pub-date",
+            "content_selector": ".content"
+        }
+    },
+    {
+        "model": "parcer_app.hubselectors",
+        "pk": 2,
+        "fields": {
+            "hub": 2,
+            "article_selector": ".post",
+            "title_selector": ".post-title",
+            "author_selector": ".post-author",
+            "publication_date_selector": ".post-date",
+            "content_selector": ".post-content"
+        }
+    }
+]
