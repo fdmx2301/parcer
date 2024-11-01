@@ -76,6 +76,13 @@ class HubSelectors(models.Model):
         null=True,
         blank=True
     )
+    author_url_selector = models.CharField(
+        max_length=255, 
+        help_text='CSS-селектор для ссылки на автора',
+        verbose_name='CSS-селектор для ссылки на автора',
+        null=True,
+        blank=True
+    )
     publication_date_selector = models.CharField(
         max_length=255, 
         help_text='CSS-селектор для даты публикации',

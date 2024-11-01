@@ -27,6 +27,7 @@
             "article_selector": ".article",
             "title_selector": ".title",
             "author_selector": ".author",
+            "author_url_selector": ".author a",
             "publication_date_selector": ".pub-date",
             "content_selector": ".content"
         }
@@ -39,6 +40,7 @@
             "article_selector": ".post",
             "title_selector": ".post-title",
             "author_selector": ".post-author",
+            "author_url_selector": ".post-author a",
             "publication_date_selector": ".post-date",
             "content_selector": ".post-content"
         }
