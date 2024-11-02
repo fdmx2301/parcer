@@ -1,7 +1,7 @@
 from celery import shared_task
 import asyncio
 from .management.commands.fetch_articles import Command
-from models import Hub
+from .models import Hub
 from celery import current_app
 
 @shared_task

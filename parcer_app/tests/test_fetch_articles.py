@@ -38,7 +38,7 @@ class ArticleFetcherTests(TestCase):
             <a class="author_url" href="https://example.com/hub1/author/1">
                 <span class="author">Test Author</span>
             </a>
-            <time class="pub-date">2024-01-01</time>
+            <time datetime="2024-01-01" class="pub-date">2024-01-01</time>
             <div class="content">This is the content of the article.</div>
         </html>
         """)
@@ -78,7 +78,7 @@ class ArticleFetcherTests(TestCase):
             <a class="author_url" href="https://example.com/hub1/author/1">
                 <span class="author">Test Author</span>
             </a>
-            <time class="pub-date">2024-01-01</time>
+            <time datetime="2024-01-01" class="pub-date">2024-01-01</time>
             <div class="content">This is the content of the article.</div>
         </html>
         """)
@@ -91,6 +91,7 @@ class ArticleFetcherTests(TestCase):
         # Проверка, что данные были загружены
         self.assertEqual(len(fetcher.fetched_articles), 1)
         article = fetcher.fetched_articles[0]
+        
         self.assertEqual(article['title'], 'Title')
         self.assertEqual(article['author'], 'Test Author')
         self.assertEqual(article['author_url'], 'https://example.com/hub1/author/1')
@@ -118,7 +119,7 @@ class ArticleFetcherTests(TestCase):
             <a class="author_url" href="https://example.com/hub1/author/1">
                 <span class="author">Test Author</span>
             </a>
-            <time class="pub-date">2024-01-01</time>
+            <time datetime="2024-01-01" class="pub-date">2024-01-01</time>
             <div class="content">This is the content of the article.</div>
         </html>
         """)

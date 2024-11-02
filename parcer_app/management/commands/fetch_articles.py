@@ -29,10 +29,10 @@ class ArticleFetcher:
 
         try:
             async with session.get(self.hub.url) as response:
-                print(f"Запрос к {self.hub.url}, статус: {response.status}")
+                # print(f"Запрос к {self.hub.url}, статус: {response.status}")
                 if response.status == 200:
                     html_content = await response.text()
-                    print(f"Получено содержимое хаба: {html_content[:100]}...")
+                    # print(f"Получено содержимое хаба: {html_content[:100]}...")
                     await self.parse_hub_page(html_content, session)
                 else:
                     print(f"Не удалось получить страницу {self.hub.url}: Статус {response.status}")
@@ -42,7 +42,7 @@ class ArticleFetcher:
     async def parse_hub_page(self, html_content, session):
         soup = BeautifulSoup(html_content, 'html.parser')
         article_links = soup.select(self.selectors.article_selector)
-        print(f"Найденные ссылки на статьи: {[link.get('href') for link in article_links]}")
+        # print(f"Найденные ссылки на статьи: {[link.get('href') for link in article_links]}")
 
         tasks = [self.fetch_article_data(link.get('href'), session) for link in article_links if link.get('href')]
         await asyncio.gather(*tasks)
@@ -60,50 +60,29 @@ class ArticleFetcher:
                 print(f"Ошибка при получении статьи {url}: {e}")
 
     async def parse_article_page(self, url, html_content):
-        print(f"Парсинг страницы статьи {url}")
+        # print(f"Парсинг страницы статьи {url}")
         await self._store_article_data(url, html_content)
 
     @sync_to_async
     def _store_article_data(self, url, html_content):
         soup = BeautifulSoup(html_content, 'html.parser')
 
-        title = soup.select_one(self.selectors.title_selector)
-        author = soup.select_one(self.selectors.author_selector)
-        author_url = soup.select_one(self.selectors.author_url_selector)
-        publication_date = soup.select_one(self.selectors.publication_date_selector)
-        content = soup.select_one(self.selectors.content_selector)
+        # Извлечение данных с использованием селекторов
+        title_element = soup.select_one(self.selectors.title_selector)
+        author_element = soup.select_one(self.selectors.author_selector)
+        author_url_element = soup.select_one(self.selectors.author_url_selector)
+        publication_date_element = soup.select_one(self.selectors.publication_date_selector)
+        content_elements = soup.select_one(self.selectors.content_selector)
 
-        print(f"Заголовок: {title}, Автор: {author}, Ссылка на автора: {author_url}, Дата: {publication_date}, Содержимое: {content}")
-
-        if title:
-            title = title.get_text(strip=True)
-        else:
-            title = 'Без названия'
-            print("Ошибка: заголовок не найден")
-
-        if author:
-            author = author.get_text(strip=True)
-        else:
-            author = 'Неизвестный автор'
-            print("Ошибка: автор не найден")
-
-        if author_url:
-            author_url = author_url.get('href')
-        else:
-            author_url = 'Нет ссылки на автора'
-            print("Ошибка: ссылка на автора не найдена")
-
-        if publication_date:
-            publication_date = publication_date.get_text(strip=True)
-        else:
-            publication_date = 'Неизвестная дата'
-            print("Ошибка: дата публикации не найдена")
-
-        if content:
-            content = content.get_text(strip=True)
-        else:
-            content = 'Нет содержания'
-            print("Ошибка: содержание не найдено")
+        # Извлечение текста и атрибутов
+        title = title_element.get_text(strip=True) if title_element else "Без названия"
+        author = author_element.get_text(strip=True) if author_element else "Аноним"
+        author_url = author_url_element.get('href') if author_url_element else "#"
+        publication_date = (
+            publication_date_element.get('datetime') if publication_date_element and publication_date_element.get('datetime') else
+            publication_date_element.get('title') if publication_date_element else None
+        )
+        content = "\n".join(element.get_text(strip=True) for element in content_elements.find_all(['p', 'pre', 'code', 'blockquote'])) if content_elements else "Без содержания"
 
         self.fetched_articles.append({
             'title': title,
@@ -114,10 +93,12 @@ class ArticleFetcher:
             'content': content,
         })
 
-        try:
-            publication_date_dt = timezone.datetime.strptime(publication_date, '%Y-%m-%d %H:%M:%S')
-        except ValueError:
-            publication_date_dt = timezone.now()
+        if publication_date:
+            try:
+                publication_date_dt = timezone.datetime.fromisoformat(publication_date)
+                publication_date_dt = timezone.make_aware(publication_date_dt)
+            except ValueError:
+                publication_date_dt = timezone.now()
 
         Post.objects.update_or_create(
             post_url=url,

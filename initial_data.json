@@ -3,8 +3,8 @@
         "model": "parcer_app.hub",
         "pk": 1,
         "fields": {
-            "name": "Хаб 1",
-            "url": "https://example.com/hub1",
+            "name": "Хабр",
+            "url": "https://habr.com/ru/articles/",
             "fetch_interval": 10,
             "last_fetched": null
         }
@@ -14,8 +14,8 @@
         "pk": 2,
         "fields": {
             "name": "Хаб 2",
-            "url": "https://example.com/hub2",
-            "fetch_interval": 15,
+            "url": "https://stackoverflow.com/questions",
+            "fetch_interval": 10,
             "last_fetched": null
         }
     },
@@ -24,12 +24,12 @@
         "pk": 1,
         "fields": {
             "hub": 1,
-            "article_selector": ".article",
-            "title_selector": ".title",
-            "author_selector": ".author",
-            "author_url_selector": ".author a",
-            "publication_date_selector": ".pub-date",
-            "content_selector": ".content"
+            "article_selector": "#articleTitle .tm-title__link",
+            "title_selector": "article .tm-title span",
+            "author_selector": "article .tm-user-info__username",
+            "author_url_selector": "article .tm-user-info__username",
+            "publication_date_selector": "article .tm-article-datetime-published time",
+            "content_selector": "article .tm-article-body .article-formatted-body"
         }
     },
     {
@@ -37,12 +37,12 @@
         "pk": 2,
         "fields": {
             "hub": 2,
-            "article_selector": ".post",
-            "title_selector": ".post-title",
-            "author_selector": ".post-author",
-            "author_url_selector": ".post-author a",
-            "publication_date_selector": ".post-date",
-            "content_selector": ".post-content"
+            "article_selector": "#questions .s-link",
+            "title_selector": "#question-header .question-hyperlink",
+            "author_selector": ".postcell .user-info .user-details a",
+            "author_url_selector": ".postcell .user-info .user-details a",
+            "publication_date_selector": ".postcell .user-action-time span",
+            "content_selector": ".postcell .s-prose .js-post-body"
         }
     }
 ]

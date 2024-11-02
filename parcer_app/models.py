@@ -127,8 +127,8 @@ class Post(models.Model):
     author_url = models.URLField(
         help_text='Ссылка на автора',
         verbose_name='Ссылка на автора',
-        null=False,
-        blank=False
+        null=True,
+        blank=True
     )
     post_url = models.URLField(
         unique=True,
@@ -140,8 +140,8 @@ class Post(models.Model):
     publication_date = models.DateTimeField(
         help_text='Дата публикации',
         verbose_name='Дата публикации',
-        null=False,
-        blank=False
+        null=True,
+        blank=True
     )
     content = models.TextField(
         help_text='Содержание поста',
