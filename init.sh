@@ -5,6 +5,32 @@ CONFIG_FILE="parcer_app/config.json"
 ENV_FILE="parcer_app/.env"
 INITIAL_DATA="parcer_app/initial_data.json"
 
+# ПИДы для фоновых процессов
+REDIS_PID=""
+CELERY_PID=""
+RUNSERVER_PID=""
+PARCER_PID=""
+
+# Функция для очистки (остановка процессов)
+cleanup() {
+    if [ -n "$REDIS_PID" ]; then
+        kill "$REDIS_PID" 2>/dev/null
+        echo "Redis остановлен."
+    fi
+    if [ -n "$CELERY_PID" ]; then
+        kill "$CELERY_PID" 2>/dev/null
+        echo "Celery остановлен."
+    fi
+    if [ -n "$RUNSERVER_PID" ]; then
+        kill "$RUNSERVER_PID" 2>/dev/null
+        echo "Django сервер остановлен."
+    fi
+    if [ -n "$PARCER_PID" ]; then
+        kill "$PARCER_PID" 2>/dev/null
+        echo "Парсер остановлен."
+    fi
+}
+
 # Функция для обработки ошибок
 handle_error() {
     echo "ОШИБКА: что-то пошло не так. Отмена изменений."
@@ -29,6 +55,7 @@ restore_env() {
 trap 'handle_error' ERR
 trap restore_env EXIT INT TERM
 trap 'echo -e "\nОШИБКА: Сценарий был прерван. Завершение работы."; exit 1' INT
+trap 'cleanup; exit' EXIT INT TERM
 
 # Функция для загрузки конфигурации
 load_config() {
@@ -323,6 +350,43 @@ python manage.py load_initial_data
 
 echo "Инициализация завершена."
 
+# Запуск Redis
+echo "Запускаем Redis..."
+redis-server &
+REDIS_PID=$!
+if [ $? -ne 0 ]; then
+    echo "ОШИБКА: Не удалось запустить Redis."
+    exit 1
+fi
+
+# Запуск Celery
+echo "Запускаем Celery..."
+elery -A config worker -l info -P solo &
+CELERY_PID=$!
+if [ $? -ne 0 ]; then
+    echo "ОШИБКА: Не удалось запустить Celery."
+    exit 1
+fi
+
+# Проверка работы парсера
+echo "Проверка работы парсера..."
+if ! python manage.py parcer_app.tests.fetch_articles; then
+    echo "ОШИБКА: Ошибка работы парсера. Завершение скрипта."
+    restore_env
+    exit 1
+fi
+
 # Запускаем сервер
 echo "Запускаем сервер..."
 python manage.py runserver
+RUNSERVER_PID=$!
+
+echo "Запускаем парсер..."
+python manage.py parcer_app.tasks.schedule_fetching
+PARCER_PID=$!
+
+# Ожидание завершения процесса сервера
+wait "$RUNSERVER_PID"
+
+# После завершения работы сервера очищаем
+cleanup
