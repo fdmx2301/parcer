@@ -60,14 +60,9 @@ trap 'cleanup; exit' EXIT INT TERM
 # Функция для загрузки конфигурации
 load_config() {
     if [ -f "$CONFIG_FILE" ]; then
-        DATABASE_NAME=$(jq -r '.DATABASE_NAME' "$CONFIG_FILE")
-        DATABASE_USER=$(jq -r '.DATABASE_USER' "$CONFIG_FILE")
-        DATABASE_PASSWORD=$(jq -r '.DATABASE_PASSWORD' "$CONFIG_FILE")
-        DATABASE_HOST=$(jq -r '.DATABASE_HOST' "$CONFIG_FILE")
-        DATABASE_PORT=$(jq -r '.DATABASE_PORT' "$CONFIG_FILE")
-        SUPERUSER_NAME=$(jq -r '.SUPERUSER_NAME' "$CONFIG_FILE")
-        SUPERUSER_EMAIL=$(jq -r '.SUPERUSER_EMAIL' "$CONFIG_FILE")
-        SUPERUSER_PASSWORD=$(jq -r '.SUPERUSER_PASSWORD' "$CONFIG_FILE")
+        # Загружаем значения из Python скрипта
+        IFS=$'\n' read -r DATABASE_NAME DATABASE_USER DATABASE_PASSWORD DATABASE_HOST DATABASE_PORT SUPERUSER_NAME SUPERUSER_EMAIL SUPERUSER_PASSWORD < <(python3 load_config.py "$CONFIG_FILE")
+
         return 0
     else
         while true; do
@@ -90,6 +85,7 @@ load_config() {
         done
     fi
 }
+
 
 # Функция для создания конфигурационного файла с настройками по умолчанию
 create_default_config() {

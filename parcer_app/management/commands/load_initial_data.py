@@ -25,11 +25,9 @@ class Command(BaseCommand):
                 pk = entry['pk']
 
                 if model == 'parcer_app.hub':
-                    # Проверка обязательных полей
                     if not all(key in fields for key in ('name', 'url', 'fetch_interval')):
                         raise ValueError("Для модели 'Hub' отсутствует одно из обязательных полей: 'name', 'url' или 'fetch_interval'")
                     
-                    # Если объект с таким PK уже существует, обновляем его
                     hub, created = Hub.objects.update_or_create(
                         id=pk,
                         defaults={
@@ -39,21 +37,21 @@ class Command(BaseCommand):
                             'last_fetched': fields['last_fetched']
                         }
                     )
+
                     if created:
                         self.stdout.write(self.style.SUCCESS(f'Создан новый Hub с ID {pk}'))
                     else:
                         self.stdout.write(self.style.WARNING(f'Обновлён существующий Hub с ID {pk}'))
+                        
                     created_objects[pk] = hub
 
                 elif model == 'parcer_app.hubselectors':
                     hub_id = fields['hub']
                     hub = created_objects.get(hub_id)
 
-                    # Проверка на существование связанного Hub
                     if not hub:
                         raise ValueError(f"Hub с ID {hub_id} не был загружен ранее")
                     
-                    # Если объект с таким PK уже существует, обновляем его
                     hub_selector, created = HubSelectors.objects.update_or_create(
                         id=pk,
                         defaults={
@@ -65,6 +63,7 @@ class Command(BaseCommand):
                             'content_selector': fields['content_selector']
                         }
                     )
+
                     if created:
                         self.stdout.write(self.style.SUCCESS(f'Создан новый HubSelector с ID {pk}'))
                     else:
