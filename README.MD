@@ -48,10 +48,12 @@
 3. Следуйте инструкциям в терминале:
 
     3.1. Будет предложено установить .venv (виртуальное окружение)
+
     3.2. Будет предложено установить зависимости из req.txt (можете установить их вручную):
     ```bash
     pip install -r req.txt
     ```
+
     3.3. Подключитесь к вашей базе данных, убедитесь что у пользователя достаточно прав, пример:
     ```sql
     CREATE DATABASE sitesoft_parcer;
@@ -64,6 +66,7 @@
     ALTER SCHEMA public OWNER TO sitesoftadmin;
     GRANT ALL PRIVILEGES ON DATABASE sitesoft_parcer TO sitesoftadmin;
     ```
+    
     3.4. Введите данные пользователя для админ панели Django
 
 ## Комментарии
