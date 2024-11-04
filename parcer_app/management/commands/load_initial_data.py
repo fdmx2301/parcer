@@ -9,7 +9,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         try:
-            with open('parcer_app/initial_data.json', 'r', encoding='utf-8') as f:
+            with open('initial_data.json', 'r', encoding='utf-8') as f:
                 data = json.load(f)
         except FileNotFoundError:
             raise FileNotFoundError("Ошибка: файл 'initial_data.json' не найден")
@@ -38,12 +38,14 @@ class Command(BaseCommand):
                         }
                     )
 
+                    '''
                     if created:
                         self.stdout.write(self.style.SUCCESS(f'Создан новый Hub с ID {pk}'))
                     else:
                         self.stdout.write(self.style.WARNING(f'Обновлён существующий Hub с ID {pk}'))
-                        
+                    '''
                     created_objects[pk] = hub
+                    
 
                 elif model == 'parcer_app.hubselectors':
                     hub_id = fields['hub']
@@ -64,9 +66,11 @@ class Command(BaseCommand):
                         }
                     )
 
+                    '''
                     if created:
                         self.stdout.write(self.style.SUCCESS(f'Создан новый HubSelector с ID {pk}'))
                     else:
                         self.stdout.write(self.style.WARNING(f'Обновлён существующий HubSelector с ID {pk}'))
+                    '''
 
         self.stdout.write(self.style.SUCCESS('Начальные данные успешно загружены.'))

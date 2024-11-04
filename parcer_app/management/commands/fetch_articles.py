@@ -3,6 +3,7 @@ import aiohttp
 from asgiref.sync import sync_to_async
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from django.db import transaction
 from bs4 import BeautifulSoup
 from parcer_app.models import Hub, HubSelectors, Post
 
@@ -56,6 +57,8 @@ class ArticleFetcher:
                 for link in article_links if link.get('href')
             ]
             await asyncio.gather(*tasks)
+
+            await self.store_articles_bulk()
         except Exception as e:
             self.command.stdout.write(self.command.style.ERROR(f"Ошибка при парсинге страницы хаба {self.hub.url}: {e}"))
 
@@ -72,10 +75,6 @@ class ArticleFetcher:
                 self.command.stdout.write(self.command.style.ERROR(f"Ошибка при получении статьи {url}: {e}"))
 
     async def parse_article_page(self, url, html_content):
-        await self._store_article_data(url, html_content)
-
-    @sync_to_async
-    def _store_article_data(self, url, html_content):
         soup = BeautifulSoup(html_content, 'html.parser')
 
         # Извлечение данных с использованием селекторов
@@ -116,24 +115,40 @@ class ArticleFetcher:
             'content': content,
         })
 
+    @sync_to_async
+    @transaction.atomic
+    def store_articles_bulk(self):
+        existing_urls = set(Post.objects.filter(hub=self.hub).values_list('post_url', flat=True))
+
+        unique_articles = [
+            article for article in self.fetched_articles if article['post_url'] not in existing_urls
+        ]
+
+        posts_to_create = [
+            Post(
+                hub=self.hub,
+                title=article['title'],
+                author_name=article['author'],
+                author_url=article['author_url'],
+                post_url=article['post_url'],
+                publication_date=self._parse_publication_date(article['publication_date']),
+                content=article['content']
+            )
+            for article in unique_articles
+        ]
+
+        if posts_to_create:
+            Post.objects.bulk_create(posts_to_create)
+            self.command.stdout.write(self.command.style.SUCCESS(f"Добавлено {len(posts_to_create)} новых статей"))
+
+    def _parse_publication_date(self, publication_date):
         if publication_date:
             try:
                 publication_date_dt = timezone.datetime.fromisoformat(publication_date)
-                publication_date_dt = timezone.make_aware(publication_date_dt)
+                return timezone.make_aware(publication_date_dt)
             except ValueError:
-                publication_date_dt = timezone.now()
-
-        Post.objects.update_or_create(
-            post_url=url,
-            defaults={
-                'hub': self.hub,
-                'title': title,
-                'author_name': author,
-                'author_url': author_url,
-                'publication_date': publication_date_dt,
-                'content': content
-            }
-        )
+                return timezone.now()
+        return timezone.now()
 
     async def output_results(self):
         self.command.stdout.write(self.command.style.SUCCESS(f"\nСтатьи хаба: {self.hub.name}"))
@@ -145,7 +160,7 @@ class Command(BaseCommand):
     help = 'Запрашивает данные со всех хабов и сохраняет их в базу данных'
 
     async def fetch_all_hubs(self):
-        hubs = Hub.objects.all()
+        hubs = await sync_to_async(list)(Hub.objects.all())
         fetchers = []
 
         for hub in hubs:

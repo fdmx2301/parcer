@@ -1,0 +1,10 @@
+{
+    "DATABASE_NAME": "sitesoft_parcer",
+    "DATABASE_USER": "sitesoftadmin",
+    "DATABASE_PASSWORD": "admin",
+    "DATABASE_HOST": "localhost",
+    "DATABASE_PORT": "",
+    "SUPERUSER_NAME": "ss_admin",
+    "SUPERUSER_EMAIL": "",
+    "SUPERUSER_PASSWORD": "ss_admin"
+}
