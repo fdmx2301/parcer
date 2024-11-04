@@ -25,24 +25,23 @@ class Command(BaseCommand):
                 pk = entry['pk']
 
                 if model == 'parcer_app.hub':
-                    if not all(key in fields for key in ('name', 'url', 'fetch_interval')):
-                        raise ValueError("Для модели 'Hub' отсутствует одно из обязательных полей: 'name', 'url' или 'fetch_interval'")
+                    if not all(key in fields for key in ('name', 'url')):
+                        raise ValueError("Для модели 'Hub' отсутствует одно из обязательных полей: 'name', 'url'")
                     
                     hub, created = Hub.objects.update_or_create(
                         id=pk,
                         defaults={
                             'name': fields['name'],
                             'url': fields['url'],
-                            'fetch_interval': fields['fetch_interval'],
                             'last_fetched': fields['last_fetched']
                         }
                     )
 
                     '''
                     if created:
-                        self.stdout.write(self.style.SUCCESS(f'Создан новый Hub с ID {pk}'))
+                        print(f'Создан новый Hub с ID {pk}')
                     else:
-                        self.stdout.write(self.style.WARNING(f'Обновлён существующий Hub с ID {pk}'))
+                        print(f'Обновлён существующий Hub с ID {pk}')
                     '''
                     created_objects[pk] = hub
                     
@@ -61,6 +60,7 @@ class Command(BaseCommand):
                             'article_selector': fields['article_selector'],
                             'title_selector': fields['title_selector'],
                             'author_selector': fields['author_selector'],
+                            'author_url_selector': fields['author_url_selector'],
                             'publication_date_selector': fields['publication_date_selector'],
                             'content_selector': fields['content_selector']
                         }
@@ -68,9 +68,9 @@ class Command(BaseCommand):
 
                     '''
                     if created:
-                        self.stdout.write(self.style.SUCCESS(f'Создан новый HubSelector с ID {pk}'))
+                        print(f'Создан новый HubSelector с ID {pk}')
                     else:
-                        self.stdout.write(self.style.WARNING(f'Обновлён существующий HubSelector с ID {pk}'))
+                        print(f'Обновлён существующий HubSelector с ID {pk}')
                     '''
 
-        self.stdout.write(self.style.SUCCESS('Начальные данные успешно загружены.'))
+        print('Начальные данные успешно загружены.')

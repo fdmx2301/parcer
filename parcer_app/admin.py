@@ -4,7 +4,7 @@ from .models import Hub, HubSelectors, Post
 @admin.register(Hub)
 class HubAdmin(admin.ModelAdmin):
     list_display = [
-        'name', 'fetch_interval', 'last_fetched'
+        'name', 'last_fetched'
     ]
     readonly_fields = ('last_fetched',)
     list_filter = ('name',)
@@ -14,14 +14,12 @@ class HubAdmin(admin.ModelAdmin):
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = [
-        'hub', 'title', 'post_url',
-        'content', 'author_name', 'publication_date',
+        'hub', 'title', 'post_url', 'author_name', 'publication_date',
         'author_url', 'created_at'
     ]
     list_select_related = ('hub',)
     readonly_fields = (
-        'hub', 'title', 'post_url',
-        'content', 'author_name', 'publication_date',
+        'hub', 'title', 'post_url', 'author_name', 'publication_date',
         'author_url', 'created_at',
     )
 

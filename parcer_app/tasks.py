@@ -1,15 +1,15 @@
 from celery import shared_task
-import asyncio
 from .management.commands.fetch_articles import Command
-from .models import Hub
 from celery import current_app
+import asyncio
 
 @shared_task
-def fetch_articles(hub_id):
+def fetch_articles():
+    print("Запуск парсера для всех хабов...")
     fetch_command = Command()
-    asyncio.run(fetch_command.fetch_all_hubs(hub_id))
+    asyncio.run(fetch_command.fetch_all_hubs())
+    print("Успешно!")
 
+@shared_task
 def schedule_fetching():
-    hubs = Hub.objects.all()
-    for hub in hubs:
-        current_app.send_task('parcer_app.tasks.fetch_articles', args=[hub.id], countdown=hub.fetch_interval * 60)
+    current_app.send_task('parcer_app.tasks.fetch_articles', countdown=0)

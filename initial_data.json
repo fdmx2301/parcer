@@ -3,9 +3,8 @@
         "model": "parcer_app.hub",
         "pk": 1,
         "fields": {
-            "name": "Хабр",
+            "name": "habr.com",
             "url": "https://habr.com/ru/articles/",
-            "fetch_interval": 10,
             "last_fetched": null
         }
     },
@@ -13,9 +12,8 @@
         "model": "parcer_app.hub",
         "pk": 2,
         "fields": {
-            "name": "Хаб 2",
+            "name": "stackoverflow.com",
             "url": "https://stackoverflow.com/questions",
-            "fetch_interval": 10,
             "last_fetched": null
         }
     },
@@ -24,10 +22,10 @@
         "pk": 1,
         "fields": {
             "hub": 1,
-            "article_selector": "#articleTitle .tm-title__link",
+            "article_selector": "article .tm-title__link",
             "title_selector": "article .tm-title span",
-            "author_selector": "article .tm-user-info__username",
-            "author_url_selector": "article .tm-user-info__username",
+            "author_selector": ".tm-article-presenter__content .tm-article-snippet__author .tm-user-info__username",
+            "author_url_selector": ".tm-article-presenter__content .tm-article-snippet__author .tm-user-info__username",
             "publication_date_selector": "article .tm-article-datetime-published time",
             "content_selector": "article .tm-article-body .article-formatted-body"
         }
@@ -42,7 +40,7 @@
             "author_selector": ".postcell .user-info .user-details a",
             "author_url_selector": ".postcell .user-info .user-details a",
             "publication_date_selector": ".postcell .user-action-time span",
-            "content_selector": ".postcell .s-prose .js-post-body"
+            "content_selector": ".postcell .js-post-body"
         }
     }
 ]

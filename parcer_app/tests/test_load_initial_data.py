@@ -14,7 +14,6 @@ class LoadInitialDataTest(TestCase):
             "fields": {
                 "name": "Test Hub",
                 "url": "http://example.com",
-                "fetch_interval": 10,
                 "last_fetched": None
             }
         },
@@ -26,6 +25,7 @@ class LoadInitialDataTest(TestCase):
                 "article_selector": ".article",
                 "title_selector": ".title",
                 "author_selector": ".author",
+                "author_url_selector": ".author_url",
                 "publication_date_selector": ".pub_date",
                 "content_selector": ".content",
             }
@@ -37,12 +37,12 @@ class LoadInitialDataTest(TestCase):
         hub = Hub.objects.get(pk=1)
         self.assertEqual(hub.name, "Test Hub")
         self.assertEqual(hub.url, "http://example.com")
-        self.assertEqual(hub.fetch_interval, 10)
         
         selector = HubSelectors.objects.get(pk=1)
         self.assertEqual(selector.article_selector, ".article")
         self.assertEqual(selector.title_selector, ".title")
         self.assertEqual(selector.author_selector, ".author")
+        self.assertEqual(selector.author_url_selector, ".author_url")
         self.assertEqual(selector.publication_date_selector, ".pub_date")
         self.assertEqual(selector.content_selector, ".content")
 
@@ -57,6 +57,7 @@ class LoadInitialDataTest(TestCase):
                 "article_selector": ".article",
                 "title_selector": ".title",
                 "author_selector": ".author",
+                "author_url_selector": ".author_url",
                 "publication_date_selector": ".pub-date",
                 "content_selector": ".content"
             }
@@ -75,18 +76,17 @@ class LoadInitialDataTest(TestCase):
             "fields": {
                 "name": "Updated Hub",
                 "url": "http://example.com",
-                "fetch_interval": 20,
                 "last_fetched": None
             }
         }
     ]))
     def test_update_existing_data(self, mock_file):
-        Hub.objects.create(pk=1, name="Test Hub", url="http://example.com", fetch_interval=10)
+        Hub.objects.create(pk=1, name="Test Hub", url="http://example.com")
         
         call_command('load_initial_data')
         
         hub = Hub.objects.get(pk=1)
-        self.assertEqual(hub.fetch_interval, 20)
+        self.assertEqual(hub.name, "Updated Hub")
 
 
     # Test 4: Отсутсвует обязательное поле
@@ -97,7 +97,6 @@ class LoadInitialDataTest(TestCase):
             "fields": {
                 # 'name': "Test Hub",
                 "url": "http://example.com",
-                "fetch_interval": 10,
                 "last_fetched": None
             }
         }

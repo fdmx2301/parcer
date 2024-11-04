@@ -16,13 +16,6 @@ class Hub(models.Model):
         null=False,
         blank=False
     )
-    fetch_interval = models.IntegerField(
-        default=10,
-        help_text='Интервал обновления',
-        verbose_name='Интервал обновления',
-        null=False,
-        blank=False
-    )
     last_fetched = models.DateTimeField(
         help_text='Время последнего обновления',
         verbose_name='Время последнего обновления',
@@ -34,10 +27,6 @@ class Hub(models.Model):
         verbose_name = 'Хаб'
         verbose_name_plural = 'Хабы'
         ordering = ('name',)
-
-    def clean(self):
-        if self.fetch_interval <= 0:
-            raise ValidationError('Интервал обновления должен быть больше нуля.')
 
     def __str__(self):
         return self.name

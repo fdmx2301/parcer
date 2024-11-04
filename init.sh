@@ -9,10 +9,19 @@ INITIAL_DATA="initial_data.json"
 REDIS_PID=""
 CELERY_PID=""
 RUNSERVER_PID=""
-PARCER_PID=""
+BEAT_PID=""
+
+
+CLEANUP_CALLED=false
 
 # Функция для очистки (остановка процессов)
 cleanup() {
+    if [ "$CLEANUP_CALLED" = true ]; then
+        return
+    fi
+    CLEANUP_CALLED=true
+
+    echo ""
     if [ -n "$REDIS_PID" ]; then
         kill "$REDIS_PID" 2>/dev/null
         echo "Redis остановлен."
@@ -25,9 +34,9 @@ cleanup() {
         kill "$RUNSERVER_PID" 2>/dev/null
         echo "Django сервер остановлен."
     fi
-    if [ -n "$PARCER_PID" ]; then
-        kill "$PARCER_PID" 2>/dev/null
-        echo "Парсер остановлен."
+    if [ -n "$BEAT_PID" ]; then
+        kill "$BEAT_PID" 2>/dev/null
+        echo "Celery Beat остановлен."
     fi
 }
 
@@ -414,10 +423,19 @@ echo ""
 
 # Запуск Celery
 echo "Запускаем Celery..."
-celery -A config worker -l info -P solo &
+PYTHONIOENCODING=UTF-8 celery -A config worker -l info -P solo &
 CELERY_PID=$!
 if [ $? -ne 0 ]; then
     echo "ОШИБКА: Не удалось запустить Celery."
+    exit 1
+fi
+echo ""
+
+echo "Запускаем Celery Beat..."
+celery -A config beat -l info &
+BEAT_PID=$!
+if [ $? -ne 0 ]; then
+    echo "ОШИБКА: Не удалось запустить Celery Beat."
     exit 1
 fi
 echo ""
@@ -437,9 +455,9 @@ python manage.py runserver &
 RUNSERVER_PID=$!
 echo ""
 
+# Запускам парсер (1 итерация)
 echo "Запускаем парсер..."
-python manage.py parcer_app.tasks.fetch_articles
-PARCER_PID=$!
+python manage.py shell -c "from parcer_app.tasks import fetch_articles; fetch_articles.delay()"
 echo ""
 
 # Ожидание завершения процесса сервера
