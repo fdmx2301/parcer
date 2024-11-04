@@ -258,7 +258,7 @@ fi
 if [ -f "req.txt" ]; then
     echo "Проверка установленных зависимостей..."
     # Сравниваем установленные пакеты с требуемыми
-    MISSING_PACKAGES=$(python -m pip install --dry-run -r requirements.txt 2>&1 | grep -i "would install" | awk '{print $4}')
+    MISSING_PACKAGES=$(python -m pip install --dry-run -r req.txt 2>&1 | grep -i "would install" | awk '{print $4}')
 
     if [ -n "$MISSING_PACKAGES" ]; then
         echo "Найдены отсутствующие зависимости:"
@@ -371,9 +371,17 @@ update_env_file
 cp "$ENV_FILE" "$ENV_FILE.bak"
 
 # Выполняем миграции
-echo "Применяем миграции..."
+echo "Создаем миграции..."
 python manage.py makemigrations
-python manage.py migrate
+sleep 1
+
+# Проверяем, были ли созданы миграции
+if [ "$(ls parcer_app/migrations/ | grep '000*')" ]; then
+    echo "Применяем миграции..."
+    python manage.py migrate
+else
+    echo "Миграции не были созданы, пропускаем применение."
+fi
 
 # Проверка загрузки начальных данных
 echo "Проверка загрузки начальных данных..."
